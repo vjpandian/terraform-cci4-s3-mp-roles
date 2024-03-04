@@ -27,6 +27,7 @@ variable "cluster_oidc_issuer_url" {
 
 variable "k8s_namespace" {
    description = "CircleCI Server 4.x Namespace"
+   default = "circleci-server"
 }
 variable "aws_account_id" {
   description = "AWS Account ID"
