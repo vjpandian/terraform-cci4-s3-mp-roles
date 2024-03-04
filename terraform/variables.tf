@@ -22,7 +22,7 @@ variable "cluster_oidc_provider_arn" {
 }
 
 variable "cluster_oidc_issuer_url" {
-   description = "Cluster OIDC Issuer URL"
+   description = "OpenID Connect provider URL for the CircleCI Cluster"
 }
 
 variable "k8s_namespace" {
