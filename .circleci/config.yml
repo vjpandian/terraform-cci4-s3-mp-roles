@@ -56,3 +56,12 @@ jobs:
     executor: tf-light
     steps:
       - tf-apply
+workflows:
+  tf-workflow:
+    jobs:
+      - tf-plan:
+          context: org-global
+      - tf-apply:
+          context: org-global
+          requires: 
+             - tf-plan
