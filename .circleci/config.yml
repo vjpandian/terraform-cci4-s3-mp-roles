@@ -1,0 +1,58 @@
+
+
+version: 2.1
+
+parameters:
+  terraform-workspace:
+    type: string
+    default: "terraform"
+
+executors:
+  tf-light:
+    docker:
+      - image: hashicorp/terraform:1.6.0
+    resource_class: large
+    environment:
+      AWS_DEFAULT_REGION: << pipeline.parameters.aws-region >>
+      WORKSPACE: << pipeline.parameters.terraform-workspace >>
+      
+commands:  
+  tf-init-plan:
+    steps:
+      - checkout
+      - run:
+          name: Run terraform init & plan 
+          command: |
+            cd $WORKSPACE
+            terraform init -input=false
+            terraform plan -out tfapply -var="aws_region=$AWS_DEFAULT_REGION" -var="aws_access_key=$AWS_ACCESS_KEY" -var="aws_secret_key=$AWS_SECRET_KEY" -var="aws_account_id=$AWS_ACCOUNT_ID"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  tf-apply:
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run terraform apply
+          command: |
+            cd $WORKSPACE
+            terraform apply -auto-approve tfapply
+          no_output_timeout: 3h
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+jobs:
+  tf-plan:
+    working_directory: /tmp/project
+    executor: tf-light
+    steps:
+      - tf-init-plan
+
+  tf-apply:
+    executor: tf-light
+    steps:
+      - tf-apply
